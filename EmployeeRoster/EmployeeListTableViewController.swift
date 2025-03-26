@@ -52,23 +52,29 @@ class EmployeeListTableViewController: UITableViewController, EmployeeDetailTabl
     }
 
     // MARK: - Navigation
-
-    // Step 6: Go (Segue) to Employee Detail (MAIN EDIT) screen (Step 1 in EmployeeDetailTableViewController.swift)
+    // Step 6: Navigate to the Employee Detail screen (EmployeeDetailTableViewController.swift)
     @IBSegueAction func showEmployeeDetail(_ coder: NSCoder, sender: Any?) -> EmployeeDetailTableViewController? {
+        
+        // Step 6.0: Create an instance of the detail view controller using the storyboard
         let detailViewController = EmployeeDetailTableViewController(coder: coder)
+        
+        // Step 6.0.1: Set this current screen as the delegate to receive data back
         detailViewController?.delegate = self
 
-        // Step 6.1: Pass selected employee to detail screen (if editing)
+        // Step 6.1: If an existing row was tapped, find out which one
         guard
-            let cell = sender as? UITableViewCell,
-            let indexPath = tableView.indexPath(for: cell)
+            let cell = sender as? UITableViewCell,              // Make sure the sender is a table cell
+            let indexPath = tableView.indexPath(for: cell)      // Get the index path of that cell
         else {
+            // Step 6.1.1: If no cell was tapped (e.g., "Add" button), return the empty form
             return detailViewController
         }
 
+        // Step 6.2: Get the tapped employee and send it to the detail screen
         let employee = employees[indexPath.row]
         detailViewController?.employee = employee
 
+        // Step 6.3: Return the fully configured detail screen
         return detailViewController
     }
 
@@ -78,19 +84,25 @@ class EmployeeListTableViewController: UITableViewController, EmployeeDetailTabl
     }
 
     // MARK: - EmployeeDetailTableViewControllerDelegate
-
     // Step 8: Handle saving employee from detail view
     func employeeDetailTableViewController(_ controller: EmployeeDetailTableViewController, didSave employee: Employee) {
+        
+        // 📍 If a row is selected, we're editing an existing employee
+        //Logic: Call the protocol only...
         if let indexPath = tableView.indexPathForSelectedRow {
-            // Edit existing employee
+        
+        // Edit existing employee
+            // Remove the old employee at that row
             employees.remove(at: indexPath.row)
+            // Insert the updated employee back in the same place
             employees.insert(employee, at: indexPath.row)
         } else {
-            // Add new employee
+            // No row selected = we're adding a new employee
             employees.append(employee)
         }
-
+        //Refresh
         tableView.reloadData()
+        //Close the detailed screen
         dismiss(animated: true, completion: nil)
     }
 }
